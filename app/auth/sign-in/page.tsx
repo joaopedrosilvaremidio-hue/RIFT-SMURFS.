@@ -1,12 +1,13 @@
 "use client";
 
-import { FormEvent, useState } from "react";
-import { useRouter, useSearchParams } from "next/navigation";
+import { FormEvent, useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
 import { authClient } from "@/lib/auth/client";
 
 export default function SignInPage() {
   const router = useRouter();
-  const params = useSearchParams();
+  const [accessDenied, setAccessDenied] = useState(false);
+  useEffect(() => { setAccessDenied(new URLSearchParams(window.location.search).get("access") === "denied"); }, []);
   const [register, setRegister] = useState(false);
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
@@ -25,7 +26,8 @@ export default function SignInPage() {
       if (result.error) {
         setMessage(result.error.message || "Não foi possível autenticar.");
       } else {
-        router.push(register ? "/auth/owner-setup" : (params.get("next") || "/admin"));
+        const nextPath = new URLSearchParams(window.location.search).get("next") || "/admin";
+        router.push(register ? "/auth/owner-setup" : nextPath);
         router.refresh();
       }
     } catch {
@@ -49,7 +51,7 @@ export default function SignInPage() {
           <button className="admin-primary" disabled={busy}>{busy ? "Aguarde..." : register ? "Criar conta" : "Entrar"}</button>
         </form>
         {message && <p className="auth-message">{message}</p>}
-        {params.get("access")==="denied" && <p className="auth-message">Conta sem permissão de administrador.</p>}
+        {accessDenied && <p className="auth-message">Conta sem permissão de administrador.</p>}
         <button className="auth-toggle" onClick={()=>{setRegister(!register);setMessage("");}}>{register ? "Já tenho conta — entrar" : "Primeiro acesso? Criar conta"}</button>
         <a className="auth-home" href="/">Voltar à loja</a>
       </section>

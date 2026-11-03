@@ -3,6 +3,7 @@ import { auth } from "@/lib/auth/server";
 import { isStoreAdmin } from "@/lib/db";
 
 export const runtime = "nodejs";
+export const dynamic = "force-dynamic";
 
 export default async function AdminLayout({ children }: { children: React.ReactNode }) {
   const { data } = await auth.getSession();

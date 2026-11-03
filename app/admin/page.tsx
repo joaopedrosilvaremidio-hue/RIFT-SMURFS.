@@ -20,7 +20,30 @@ export default function AdminPage() {
     }).catch(() => setNotice("Não foi possível carregar administradores.")).finally(() => setLoadingAdmins(false));
   }, [section]);
 
-  useEffect(() => {\n    if (section !== "products") return;\n    setLoadingProducts(true);\n    fetch("/api/products").then(r => r.json()).then(data => {\n      if (Array.isArray(data.products)) setProducts(data.products);\n      if (data.error) setNotice(data.error);\n    }).catch(() => setNotice("Não foi possível carregar produtos.")).finally(() => setLoadingProducts(false));\n  }, [section]);\n\n  async function saveProduct(e: React.FormEvent<HTMLFormElement>) {\n    e.preventDefault();\n    setNotice("");\n    const form = e.currentTarget;\n    const values = Object.fromEntries(new FormData(form).entries());\n    const response = await fetch("/api/products", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(values) });\n    const data = await response.json();\n    if (!response.ok) { setNotice(data.error || "Não foi possível salvar."); return; }\n    setNotice("Produto salvo no Neon. Ele permanece não publicado até ser ativado.");\n    form.reset();\n    const refreshed = await fetch("/api/products").then(r => r.json());\n    if (Array.isArray(refreshed.products)) setProducts(refreshed.products);\n  }\n\n  async function inviteAdmin(e: React.FormEvent) {
+  useEffect(() => {
+    if (section !== "products") return;
+    setLoadingProducts(true);
+    fetch("/api/products").then(r => r.json()).then(data => {
+      if (Array.isArray(data.products)) setProducts(data.products);
+      if (data.error) setNotice(data.error);
+    }).catch(() => setNotice("Não foi possível carregar produtos.")).finally(() => setLoadingProducts(false));
+  }, [section]);
+
+  async function saveProduct(e: React.FormEvent<HTMLFormElement>) {
+    e.preventDefault();
+    setNotice("");
+    const form = e.currentTarget;
+    const values = Object.fromEntries(new FormData(form).entries());
+    const response = await fetch("/api/products", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(values) });
+    const data = await response.json();
+    if (!response.ok) { setNotice(data.error || "Não foi possível salvar."); return; }
+    setNotice("Produto salvo no Neon. Ele permanece não publicado até ser ativado.");
+    form.reset();
+    const refreshed = await fetch("/api/products").then(r => r.json());
+    if (Array.isArray(refreshed.products)) setProducts(refreshed.products);
+  }
+
+  async function inviteAdmin(e: React.FormEvent) {
     e.preventDefault();
     setNotice("");
     const response = await fetch("/api/admins", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ email: adminEmail }) });

@@ -1,8 +1,11 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
+import { authClient } from "@/lib/auth/client";
 
 export default function AdminPage() {
+  const router = useRouter();
   const [section, setSection] = useState("overview");
   const [adminEmail, setAdminEmail] = useState("");
   const [notice, setNotice] = useState("");
@@ -73,7 +76,7 @@ export default function AdminPage() {
         <a className="admin-back" href="/">← Voltar à loja</a>
       </aside>
       <section className="admin-main">
-        <header className="admin-top"><div><span className="admin-label">RIFT SMURFS / PAINEL</span><h1>{nav.find(n=>n.id===section)?.label}</h1></div><span className="admin-status"><i/> Painel administrativo</span></header>
+        <header className="admin-top"><div><span className="admin-label">RIFT SMURFS / PAINEL</span><h1>{nav.find(n=>n.id===section)?.label}</h1></div><button className="admin-logout" onClick={async()=>{await authClient.signOut();router.replace("/auth/sign-in");router.refresh();}}>Sair</button></header>
 
         {section === "overview" && <div className="admin-content">
           <div className="admin-welcome"><div><span className="eyebrow">PAINEL DA LOJA</span><h2>Gerencie sua loja.</h2><p>Use os atalhos abaixo para administrar produtos e acessos.</p></div></div>

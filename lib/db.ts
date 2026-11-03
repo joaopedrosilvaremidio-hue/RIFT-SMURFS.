@@ -23,11 +23,11 @@ export async function addStoreAdmin(email: string, invitedBy: string) {
 }
 
 export async function listStoreProducts() {
-  return await sql`SELECT id, title, category, description, price, delivery_mode, active, created_at FROM public.rift_products ORDER BY created_at DESC`;
+  return await sql`SELECT id, title, category, description, price, delivery_mode, image_data, active, created_at FROM public.rift_products ORDER BY created_at DESC`;
 }
 
 export async function createStoreProduct(input: {
-  title: string; category: "account" | "game"; description: string; price: number; delivery_mode: "automatic" | "manual";
+  title: string; category: "account" | "game"; description: string; price: number; delivery_mode: "automatic" | "manual"; image_data: string;
 }) {
   const [product] = await sql`
     INSERT INTO public.rift_products (title, category, description, price, delivery_mode, active)

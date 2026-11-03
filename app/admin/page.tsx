@@ -1,11 +1,34 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 export default function AdminPage() {
   const [section, setSection] = useState("overview");
   const [adminEmail, setAdminEmail] = useState("");
   const [notice, setNotice] = useState("");
+  const [admins, setAdmins] = useState<{email:string; created_at:string}[]>([]);
+  const [loadingAdmins, setLoadingAdmins] = useState(false);
+
+  useEffect(() => {
+    if (section !== "admins") return;
+    setLoadingAdmins(true);
+    fetch("/api/admins").then(r => r.json()).then(data => {
+      if (Array.isArray(data.admins)) setAdmins(data.admins);
+      if (data.error) setNotice(data.error);
+    }).catch(() => setNotice("Não foi possível carregar administradores.")).finally(() => setLoadingAdmins(false));
+  }, [section]);
+
+  async function inviteAdmin(e: React.FormEvent) {
+    e.preventDefault();
+    setNotice("");
+    const response = await fetch("/api/admins", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ email: adminEmail }) });
+    const data = await response.json();
+    if (!response.ok) { setNotice(data.error || "Não foi possível adicionar."); return; }
+    setNotice("Administrador autorizado. Ele deverá criar uma conta ou entrar com esse e-mail.");
+    setAdminEmail("");
+    const refreshed = await fetch("/api/admins").then(r => r.json());
+    if (Array.isArray(refreshed.admins)) setAdmins(refreshed.admins);
+  }
 
   const nav = [
     { id: "overview", label: "Visão geral", icon: "▦" },
@@ -51,13 +74,14 @@ export default function AdminPage() {
 
         {section === "admins" && <div className="admin-content">
           <div className="admin-panel-card"><div className="admin-card-heading"><div><h2>Adicionar administrador</h2><p>Convide outra pessoa para administrar a loja.</p></div><span className="small-tag">Acesso</span></div>
-            <form className="admin-form" onSubmit={e=>{e.preventDefault();setNotice("Convites e permissões só poderão ser ativados após configurar autenticação e banco de dados.");}}>
+            <form className="admin-form" onSubmit={inviteAdmin}>
               <label>E-mail do administrador<input type="email" value={adminEmail} onChange={e=>setAdminEmail(e.target.value)} required placeholder="email@exemplo.com"/></label>
               <label>Permissão<select defaultValue="admin"><option value="admin">Administrador</option></select></label>
               <button className="admin-primary" type="submit">Adicionar administrador</button>
             </form>
             {notice && <p className="admin-notice">{notice}</p>}
-            <div className="admin-warning">Acesso seguro ainda não está conectado. Nenhum administrador será criado até configurar login e banco de dados.</div>
+            <div className="admin-warning">O e-mail autorizado poderá entrar no painel após criar conta ou fazer login. Apenas administradores atuais podem adicionar novos acessos.</div>
+            <div className="admin-list"><h3>Administradores autorizados</h3>{loadingAdmins ? <p>Carregando...</p> : admins.length ? admins.map(a=><div className="admin-list-row" key={a.email}><span>{a.email}</span><small>Administrador</small></div>) : <p>Nenhum administrador listado.</p>}</div>
           </div>
         </div>}
 

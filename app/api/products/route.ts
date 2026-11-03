@@ -22,7 +22,11 @@ export async function POST(request: Request) {
   const category = body?.category;
   const description = String(body?.description ?? "").trim();
   const price = Number(body?.price);
-  const delivery_mode = body?.delivery_mode;\n  const image_data = String(body?.image_data ?? "");\n  if (image_data && (!image_data.startsWith("data:image/") || image_data.length > 3_000_000)) {\n    return NextResponse.json({ error: "Imagem inválida ou muito grande. Use uma imagem de até 2 MB." }, { status: 400 });\n  }
+  const delivery_mode = body?.delivery_mode;
+  const image_data = String(body?.image_data ?? "");
+  if (image_data && (!image_data.startsWith("data:image/") || image_data.length > 3_000_000)) {
+    return NextResponse.json({ error: "Imagem inválida ou muito grande. Use uma imagem de até 2 MB." }, { status: 400 });
+  }
 
   if (!title || title.length > 160 || !["account", "game"].includes(category) ||
       !Number.isFinite(price) || price < 0 || !["automatic", "manual"].includes(delivery_mode)) {

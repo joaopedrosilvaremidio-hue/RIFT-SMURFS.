@@ -8,6 +8,8 @@ export default function AdminPage() {
   const [notice, setNotice] = useState("");
   const [admins, setAdmins] = useState<{email:string; created_at:string}[]>([]);
   const [loadingAdmins, setLoadingAdmins] = useState(false);
+  const [products, setProducts] = useState<{id:string;title:string;category:string;price:string|number;active:boolean}[]>([]);
+  const [loadingProducts, setLoadingProducts] = useState(false);
 
   useEffect(() => {
     if (section !== "admins") return;
@@ -18,7 +20,7 @@ export default function AdminPage() {
     }).catch(() => setNotice("Não foi possível carregar administradores.")).finally(() => setLoadingAdmins(false));
   }, [section]);
 
-  async function inviteAdmin(e: React.FormEvent) {
+  useEffect(() => {\n    if (section !== "products") return;\n    setLoadingProducts(true);\n    fetch("/api/products").then(r => r.json()).then(data => {\n      if (Array.isArray(data.products)) setProducts(data.products);\n      if (data.error) setNotice(data.error);\n    }).catch(() => setNotice("Não foi possível carregar produtos.")).finally(() => setLoadingProducts(false));\n  }, [section]);\n\n  async function saveProduct(e: React.FormEvent<HTMLFormElement>) {\n    e.preventDefault();\n    setNotice("");\n    const form = e.currentTarget;\n    const values = Object.fromEntries(new FormData(form).entries());\n    const response = await fetch("/api/products", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(values) });\n    const data = await response.json();\n    if (!response.ok) { setNotice(data.error || "Não foi possível salvar."); return; }\n    setNotice("Produto salvo no Neon. Ele permanece não publicado até ser ativado.");\n    form.reset();\n    const refreshed = await fetch("/api/products").then(r => r.json());\n    if (Array.isArray(refreshed.products)) setProducts(refreshed.products);\n  }\n\n  async function inviteAdmin(e: React.FormEvent) {
     e.preventDefault();
     setNotice("");
     const response = await fetch("/api/admins", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ email: adminEmail }) });
@@ -61,11 +63,11 @@ export default function AdminPage() {
 
         {section === "products" && <div className="admin-content">
           <div className="admin-panel-card"><div className="admin-card-heading"><div><h2>Produtos</h2><p>Cadastre os produtos que serão exibidos na loja.</p></div><span className="small-tag">Catálogo</span></div>
-            <form className="admin-form" onSubmit={e=>{e.preventDefault();setNotice("O cadastro será ativado quando o banco de dados estiver conectado.");}}>
-              <label>Nome do produto<input placeholder="Ex.: Conta de jogo / jogo digital" /></label>
-              <div className="admin-form-row"><label>Categoria<select defaultValue="account"><option value="account">Conta de jogo</option><option value="game">Jogo digital</option></select></label><label>Preço (R$)<input type="number" min="0" step="0.01" placeholder="0,00"/></label></div>
-              <label>Descrição<textarea rows={3} placeholder="Informações essenciais do produto"/></label>
-              <label>Entrega<select defaultValue="automatic"><option value="automatic">Automática (após pagamento)</option><option value="manual">Manual</option></select></label>
+            <form className="admin-form" onSubmit={saveProduct}>
+              <label>Nome do produto<input name="title" required maxLength={160} placeholder="Ex.: Conta de jogo / jogo digital" /></label>
+              <div className="admin-form-row"><label>Categoria<select name="category" defaultValue="account"><option value="account">Conta de jogo</option><option value="game">Jogo digital</option></select></label><label>Preço (R$)<input name="price" type="number" min="0" step="0.01" required placeholder="0,00"/></label></div>
+              <label>Descrição<textarea name="description" rows={3} placeholder="Informações essenciais do produto"/></label>
+              <label>Entrega<select name="delivery_mode" defaultValue="automatic"><option value="automatic">Automática (após pagamento)</option><option value="manual">Manual</option></select></label>
               <button className="admin-primary" type="submit">Salvar produto</button>
             </form>
             {notice && <p className="admin-notice">{notice}</p>}

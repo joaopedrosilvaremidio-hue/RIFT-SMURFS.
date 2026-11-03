@@ -12,7 +12,9 @@ export default function AdminPage() {
   const [admins, setAdmins] = useState<{email:string; created_at:string}[]>([]);
   const [loadingAdmins, setLoadingAdmins] = useState(false);
   const [products, setProducts] = useState<{id:string;title:string;category:string;price:string|number;active:boolean}[]>([]);
-  const [loadingProducts, setLoadingProducts] = useState(false);\n  const [imageData, setImageData] = useState("");\n  const [imagePreview, setImagePreview] = useState("");
+  const [loadingProducts, setLoadingProducts] = useState(false);
+  const [imageData, setImageData] = useState("");
+  const [imagePreview, setImagePreview] = useState("");
 
   useEffect(() => {
     if (section !== "admins") return;
@@ -36,7 +38,8 @@ export default function AdminPage() {
     e.preventDefault();
     setNotice("");
     const form = e.currentTarget;
-    const values = Object.fromEntries(new FormData(form).entries());\n    values.image_data = imageData;
+    const values = Object.fromEntries(new FormData(form).entries());
+    values.image_data = imageData;
     const response = await fetch("/api/products", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(values) });
     const data = await response.json();
     if (!response.ok) { setNotice(data.error || "Não foi possível salvar."); return; }
@@ -92,7 +95,9 @@ export default function AdminPage() {
             <form className="admin-form" onSubmit={saveProduct}>
               <label>Nome do produto<input name="title" required maxLength={160} placeholder="Ex.: Conta de jogo / jogo digital" /></label>
               <div className="admin-form-row"><label>Categoria<select name="category" defaultValue="account"><option value="account">Conta de jogo</option><option value="game">Jogo digital</option></select></label><label>Preço (R$)<input name="price" type="number" min="0" step="0.01" required placeholder="0,00"/></label></div>
-              <label>Descrição<textarea name="description" rows={3} placeholder="Informações essenciais do produto"/></label>\n              <label>Foto do produto<input type="file" accept="image/*" onChange={e=>{const file=e.target.files?.[0]; if(!file){setImageData("");setImagePreview("");return;} if(file.size>2*1024*1024){setNotice("A imagem deve ter no máximo 2 MB.");e.target.value="";return;} const reader=new FileReader(); reader.onload=()=>{const result=String(reader.result||"");setImageData(result);setImagePreview(result);setNotice("");};reader.readAsDataURL(file);}} /></label>\n              {imagePreview && <img src={imagePreview} alt="Prévia da foto do produto" style={{width:"100%",maxWidth:240,aspectRatio:"1/1",objectFit:"cover",borderRadius:12}} />}
+              <label>Descrição<textarea name="description" rows={3} placeholder="Informações essenciais do produto"/></label>
+              <label>Foto do produto<input type="file" accept="image/*" onChange={e=>{const file=e.target.files?.[0]; if(!file){setImageData("");setImagePreview("");return;} if(file.size>2*1024*1024){setNotice("A imagem deve ter no máximo 2 MB.");e.target.value="";return;} const reader=new FileReader(); reader.onload=()=>{const result=String(reader.result||"");setImageData(result);setImagePreview(result);setNotice("");};reader.readAsDataURL(file);}} /></label>
+              {imagePreview && <img src={imagePreview} alt="Prévia da foto do produto" style={{width:"100%",maxWidth:240,aspectRatio:"1/1",objectFit:"cover",borderRadius:12}} />}
               <label>Entrega<select name="delivery_mode" defaultValue="automatic"><option value="automatic">Automática (após pagamento)</option><option value="manual">Manual</option></select></label>
               <button className="admin-primary" type="submit">Salvar produto</button>
             </form>

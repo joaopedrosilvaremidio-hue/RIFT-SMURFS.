@@ -21,3 +21,18 @@ export async function addStoreAdmin(email: string, invitedBy: string) {
     ON CONFLICT (email) DO NOTHING
   `;
 }
+
+export async function listStoreProducts() {
+  return await sql`SELECT id, title, category, description, price, delivery_mode, active, created_at FROM public.rift_products ORDER BY created_at DESC`;
+}
+
+export async function createStoreProduct(input: {
+  title: string; category: "account" | "game"; description: string; price: number; delivery_mode: "automatic" | "manual";
+}) {
+  const [product] = await sql`
+    INSERT INTO public.rift_products (title, category, description, price, delivery_mode, active)
+    VALUES (${input.title}, ${input.category}, ${input.description}, ${input.price}, ${input.delivery_mode}, false)
+    RETURNING id, title, category, price, active
+  `;
+  return product;
+}

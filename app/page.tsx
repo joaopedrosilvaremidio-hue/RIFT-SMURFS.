@@ -1,36 +1,23 @@
+import { listStoreProducts } from "@/lib/db";
+
 const categories = ["Contas de jogos", "Jogos digitais"];
 
-export default function Home() {
-  return (
-    <main>
-      <header className="header">
-        <a className="logo" href="/" aria-label="RIFT SMURFS início">
-          <span className="logo-mark">R</span><span>RIFT<span className="purple"> SMURFS</span></span>
-        </a>
-        <nav><a href="#categorias">Categorias</a><a href="#catalogo">Produtos</a></nav>
-        <div className="header-actions"><button className="btn-ghost" type="button">Entrar</button></div>
-      </header>
-      <section className="hero">
-        <div className="hero-copy">
-          <div className="eyebrow"><span className="dot"/> LOJA GAMER DIGITAL</div>
-          <h1>Encontre seu próximo<br/><span className="gradient">jogo ou conta.</span></h1>
-          <p>Contas de jogos e jogos digitais.</p>
-          <a className="btn-primary hero-btn" href="#catalogo">Ver produtos <span>↗</span></a>
-        </div>
-        <div className="hero-art" aria-hidden="true">
-          <div className="orbit orbit-one"/><div className="orbit orbit-two"/>
-          <div className="rift-core"><div className="rift-symbol">R</div><span>RIFT SMURFS</span></div>
-        </div>
-      </section>
-      <section id="categorias" className="categories section">
-        <div className="section-head"><div><span className="eyebrow">CATEGORIAS</span><h2>O que procura?</h2></div></div>
-        <div className="category-grid">{categories.map((name,i)=><a className="category" href="#catalogo" key={name}><span className="category-icon">{i===0?"◈":"▣"}</span><span>{name}</span><span className="arrow">↗</span></a>)}</div>
-      </section>
-      <section id="catalogo" className="catalog section">
-        <div className="section-head"><div><span className="eyebrow">LOJA</span><h2>Produtos</h2></div></div>
-        <div className="empty-state"><div className="empty-icon">⌕</div><h3>Nenhum produto disponível</h3><p>Os produtos aparecerão aqui quando forem cadastrados.</p></div>
-      </section>
-      <footer><a className="logo" href="/"><span className="logo-mark">R</span><span>RIFT<span className="purple"> SMURFS</span></span></a><span>© {new Date().getFullYear()} RIFT SMURFS</span></footer>
-    </main>
-  );
+export default async function Home() {
+  let products: any[] = [];
+  try { products = (await listStoreProducts()).filter((product: any) => product.active); } catch { products = []; }
+  return <main>
+    <div className="topbar"><span>✦ RIFT SMURFS MARKETPLACE</span><span>Produtos digitais • Atendimento humano</span></div>
+    <header className="header">
+      <a className="logo" href="/" aria-label="RIFT SMURFS início"><span className="logo-mark">R</span><span>RIFT<span className="purple"> SMURFS</span></span></a>
+      <nav><a href="#categorias">Categorias</a><a href="#catalogo">Catálogo</a><a href="#suporte">Suporte</a></nav>
+      <div className="header-actions"><a className="btn-ghost" href="#catalogo">Explorar loja</a></div>
+    </header>
+    <section className="hero"><div className="hero-copy"><div className="eyebrow"><span className="dot"/> MARKETPLACE GAMER DIGITAL</div><h1>Seu próximo nível<br/><span className="gradient">começa aqui.</span></h1><p>Contas e produtos digitais para quem vive o game. Escolha seu produto e fale com nosso suporte para concluir a compra.</p><a className="btn-primary hero-btn" href="#catalogo">Explorar catálogo <span>↗</span></a><div className="hero-foot"><span>✦ Atendimento direto</span><span>✦ Catálogo atualizado</span><span>✦ Compra assistida</span></div></div>
+      <div className="hero-art" aria-hidden="true"><div className="hero-glow"/><div className="orbit orbit-one"/><div className="orbit orbit-two"/><div className="rift-core"><div className="rift-symbol">R</div><span>RIFT SMURFS</span></div><div className="float-tag tag-top">✦ DIGITAL MARKETPLACE</div><div className="float-tag tag-bottom"><span className="purple-dot"/> GAME ON. RIFT ON.</div></div></section>
+    <section id="categorias" className="categories section"><div className="section-head"><div><span className="eyebrow">EXPLORE POR CATEGORIA</span><h2>Escolha seu universo.</h2></div><a className="text-link" href="#catalogo">Ver catálogo ↗</a></div><div className="category-grid">{categories.map((name,i)=><a className="category" href="#catalogo" key={name}><span className="category-icon">{i===0?"◈":"▣"}</span><span>{name}</span><span className="arrow">↗</span></a>)}</div></section>
+    <section id="catalogo" className="catalog section"><div className="section-head"><div><span className="eyebrow">SELEÇÃO RIFT</span><h2>Vitrine de produtos<span className="purple">.</span></h2><p className="catalog-subtitle">Encontre o produto ideal e solicite sua compra.</p></div><span className="product-count">{products.length} {products.length===1?"produto":"produtos"}</span></div>
+      {products.length ? <div className="product-grid">{products.map((product:any)=><article className="product-card" key={product.id}><div className="product-image">{product.image_data ? <img src={product.image_data} alt={product.title}/> : <div className="product-placeholder"><span>R</span><small>RIFT SMURFS</small></div>}<span className="product-badge">{product.category==="account"?"CONTA GAMER":"JOGO DIGITAL"}</span></div><div className="product-info"><div className="product-category">{product.category==="account"?"Conta de jogo":"Jogo digital"}</div><h3>{product.title}</h3>{product.description&&<p>{product.description}</p>}<div className="product-bottom"><div><small>VALOR</small><strong>R$ {Number(product.price).toLocaleString("pt-BR",{minimumFractionDigits:2,maximumFractionDigits:2})}</strong></div><a className="product-buy" href={`/checkout?product=${encodeURIComponent(String(product.id))}`}>Comprar <span>↗</span></a></div></div></article>)}</div> : <div className="empty-state"><div className="empty-icon">⌕</div><h3>Novidades chegando</h3><p>Estamos preparando a vitrine. Os produtos disponíveis aparecerão aqui.</p><span className="empty-label">RIFT SMURFS • MARKETPLACE DIGITAL</span></div>}</section>
+    <section className="trust section"><div><span className="eyebrow">COMPRA ASSISTIDA</span><h2>Seu pedido. Nosso suporte.</h2></div><p>Escolha um produto no catálogo e entre em contato com a equipe para concluir a compra. O atendimento acompanha você durante o processo.</p><a className="btn-primary" href="#catalogo">Ver produtos ↗</a></section>
+    <footer id="suporte"><a className="logo" href="/"><span className="logo-mark">R</span><span>RIFT<span className="purple"> SMURFS</span></span></a><span>© {new Date().getFullYear()} RIFT SMURFS</span><a href="#catalogo">Catálogo ↗</a></footer>
+  </main>;
 }

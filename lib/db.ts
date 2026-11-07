@@ -30,8 +30,8 @@ export async function createStoreProduct(input: {
   title: string; category: "account" | "game"; description: string; price: number; delivery_mode: "automatic" | "manual"; image_data: string;
 }) {
   const [product] = await sql`
-    INSERT INTO public.rift_products (title, category, description, price, delivery_mode, active)
-    VALUES (${input.title}, ${input.category}, ${input.description}, ${input.price}, ${input.delivery_mode}, false)
+    INSERT INTO public.rift_products (title, category, description, price, delivery_mode, image_data, active)
+    VALUES (${input.title}, ${input.category}, ${input.description}, ${input.price}, ${input.delivery_mode}, ${input.image_data || null}, true)
     RETURNING id, title, category, price, active
   `;
   return product;

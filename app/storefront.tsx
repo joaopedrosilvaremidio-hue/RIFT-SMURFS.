@@ -11,7 +11,7 @@ export default function Storefront({ products=[] }: { products:Product[] }) {
     <div className="market-topline"><span>RIFT SMURFS <b>• CONTAS GAMER</b></span><span>CONTAS SELECIONADAS • PIX</span></div>
     <header className="market-header"><a className="logo" href="/"><span className="logo-mark">R</span><span>RIFT<span className="purple"> SMURFS</span></span></a>
       <div className="market-search"><span>⌕</span><input value={query} onChange={e=>setQuery(e.target.value)} placeholder="Buscar conta ou jogo..."/></div>
-      <a className="market-sell" href="/auth/sign-in">Painel administrativo ↗</a>
+      
     </header>
     <nav className="game-nav"><a className="selected" href="#contas">Contas disponíveis</a><a href="#contas">League of Legends</a><a href="#contas">Valorant</a><a href="#contas">Outros jogos</a></nav>
     <section className="market-hero"><div className="market-hero-copy"><div className="market-kicker"><i/> RIFT SMURFS · GAME ACCOUNTS</div><h1>Sua próxima conta.<br/><span>Seu próximo nível.</span></h1><p>Contas de jogos selecionadas. Escolha a sua e consulte os detalhes da oferta.</p><a className="market-hero-cta" href="#contas">Ver contas disponíveis <b>→</b></a><div className="market-stats"><span><b>CONTAS</b><small>Somente contas de jogos</small></span><span><b>PIX</b><small>Pagamento direto</small></span><span><b>SUPORTE</b><small>Atendimento da loja</small></span></div></div><div className="market-hero-visual"><div className="market-ring ring-a"/><div className="market-ring ring-b"/><div className="market-logo-3d">R<span>IFT</span><small>SMURFS</small></div><div className="market-float f1">✦ GAMING ACCOUNTS</div><div className="market-float f2">LEVEL UP YOUR GAME</div></div></section>

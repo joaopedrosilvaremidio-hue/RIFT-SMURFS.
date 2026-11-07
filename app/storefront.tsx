@@ -1,0 +1,27 @@
+"use client";
+import { useMemo, useState } from "react";
+
+type Product = { id:string; title:string; category:string; description?:string; price:string|number; image_data?:string|null };
+export default function Storefront({ products=[] }: { products:Product[] }) {
+  const [query,setQuery]=useState("");
+  const [category,setCategory]=useState("Todos");
+  const [sort,setSort]=useState("recentes");
+  const filtered=useMemo(()=>products.filter(p=>(category==="Todos"||(category==="Contas"&&p.category==="account")||(category==="Jogos"&&p.category==="game"))&&(`${p.title} ${p.description||""}`).toLowerCase().includes(query.toLowerCase())).sort((a,b)=>sort==="menor"?Number(a.price)-Number(b.price):sort==="maior"?Number(b.price)-Number(a.price):0),[products,query,category,sort]);
+  const money=(p:Product)=>Number(p.price).toLocaleString("pt-BR",{style:"currency",currency:"BRL"});
+  return <main className="marketplace">
+    <div className="market-topline"><span>RIFT SMURFS <b>• MARKETPLACE GAMER</b></span><span>NEGOCIE • JOGUE • EVOLUA</span></div>
+    <header className="market-header"><a className="logo" href="/"><span className="logo-mark">R</span><span>RIFT<span className="purple"> SMURFS</span></span></a>
+      <div className="market-search"><span>⌕</span><input value={query} onChange={e=>setQuery(e.target.value)} placeholder="Buscar jogo, conta, skin ou produto..."/><kbd>⌘ K</kbd></div>
+      <a className="market-sell" href="/auth/sign-in">Painel vendedor ↗</a>
+    </header>
+    <nav className="game-nav"><a className="selected" href="#catalogo">Todos os jogos</a><a href="#catalogo" onClick={()=>setCategory("Contas")}>Contas</a><a href="#catalogo" onClick={()=>setCategory("Jogos")}>Jogos digitais</a><a href="#catalogo">Itens & skins</a><a href="#catalogo">Gift cards</a></nav>
+    <section className="market-hero"><div className="market-hero-copy"><div className="market-kicker"><i/> RIFT GAMING MARKET</div><h1>O game muda.<br/><span>Seu inventário evolui.</span></h1><p>Contas, jogos e itens digitais para elevar sua experiência gamer.</p><a className="market-hero-cta" href="#catalogo">Explorar ofertas <b>→</b></a><div className="market-stats"><span><b>CATÁLOGO</b><small>Produtos digitais</small></span><span><b>PIX</b><small>Pagamento direto</small></span><span><b>SUPORTE</b><small>Atendimento da loja</small></span></div></div><div className="market-hero-visual"><div className="market-ring ring-a"/><div className="market-ring ring-b"/><div className="market-logo-3d">R<span>IFT</span><small>SMURFS</small></div><div className="market-float f1">✦ RIFT EXCLUSIVE</div><div className="market-float f2">LEVEL UP YOUR GAME</div></div></section>
+    <section className="market-section" id="catalogo"><div className="market-section-heading"><div><div className="market-kicker">BROWSE MARKET</div><h2>Explore o marketplace</h2><p>Encontre o próximo item da sua coleção.</p></div><div className="market-sort"><label>Ordenar por</label><select value={sort} onChange={e=>setSort(e.target.value)}><option value="recentes">Mais recentes</option><option value="menor">Menor preço</option><option value="maior">Maior preço</option></select></div></div>
+      <div className="market-filters">{["Todos","Contas","Jogos"].map(c=><button key={c} className={category===c?"active":""} onClick={()=>setCategory(c)}>{c}</button>)}</div>
+      <div className="market-result-count">{filtered.length} ofertas encontradas</div>
+      {filtered.length?<div className="market-product-grid">{filtered.map(p=><article className="market-product" key={p.id}><a href={`/checkout?product=${encodeURIComponent(p.id)}`} className="market-product-img">{p.image_data?<img src={p.image_data} alt={p.title}/>:<div className="market-img-placeholder"><span>R</span><small>RIFT SMURFS</small></div>}<span className="market-type">{p.category==="account"?"CONTA":"JOGO DIGITAL"}</span></a><div className="market-product-content"><div className="market-product-meta"><span>{p.category==="account"?"Contas de jogos":"Jogos digitais"}</span><span className="stock-dot">● Disponível</span></div><a href={`/checkout?product=${encodeURIComponent(p.id)}`}><h3>{p.title}</h3></a>{p.description&&<p>{p.description}</p>}<div className="market-product-footer"><strong>{money(p)}</strong><a href={`/checkout?product=${encodeURIComponent(p.id)}`}>Ver oferta <span>↗</span></a></div></div></article>)}</div>:<div className="market-empty"><span>⌕</span><h3>Nenhuma oferta encontrada</h3><p>Experimente outro termo ou categoria. Novos produtos serão publicados aqui.</p><button onClick={()=>{setQuery("");setCategory("Todos");}}>Limpar filtros</button></div>}
+    </section>
+    <section className="market-trust"><div><span className="market-kicker">RIFT SMURFS</span><h2>Seu marketplace.<br/><span>Sua próxima conquista.</span></h2></div><p>Veja as ofertas disponíveis, escolha seu produto e fale com o suporte para acompanhar sua compra.</p><a href="#catalogo">Voltar ao catálogo ↑</a></section>
+    <footer className="market-footer"><a className="logo" href="/"><span className="logo-mark">R</span><span>RIFT<span className="purple"> SMURFS</span></span></a><span>© {new Date().getFullYear()} RIFT SMURFS • MARKETPLACE GAMER</span><a href="#catalogo">Explorar ofertas</a></footer>
+  </main>;
+}
